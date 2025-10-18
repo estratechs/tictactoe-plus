@@ -14,7 +14,7 @@ export const Tile = ({ value, onClick, disabled }: Props) => (
     aria-label={value ? `Cell with ${value}` : "Empty cell"}
   >
     <AnimatePresence mode="popLayout">
-      <motion.span
+      <motion.span className={\`mark ${value === 'X' ? 'x' : value === 'O' ? 'o' : ''}\`}
         key={value ?? "empty"}
         initial={{ rotateY: 180, opacity: 0 }}
         animate={{ rotateY: 0, opacity: 1 }}
