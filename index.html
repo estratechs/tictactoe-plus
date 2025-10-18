@@ -1,18 +1,20 @@
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#0ea5e9" />
+    <!-- Minimal CSP for GitHub Pages -->
     <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:">
+    <!-- NOTE: project pages use the repo name in the path -->
     <link rel="manifest" href="/tictactoe-plus/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/tictactoe-plus/icons/icon-192.png">
     <title>TicTacToe+</title>
   </head>
   <body>
     <div id="root"></div>
+    <!-- Vite entry must live at root and point to your TS entry -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
