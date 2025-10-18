@@ -1,11 +1,11 @@
 // Basic offline-first cache with versioned name
 const CACHE = 'app-cache-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -26,9 +26,9 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(req).then(res => {
         const copy = res.clone();
-        caches.open(CACHE).then(c => c.put('/', copy)).catch(()=>{});
+        caches.open(CACHE).then(c => c.put('./', copy)).catch(()=>{});
         return res;
-      }).catch(() => caches.match('/'))
+      }).catch(() => caches.match('./'))
     );
   } else {
     event.respondWith(

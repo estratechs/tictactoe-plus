@@ -1,158 +1,110 @@
-<!doctype html>
-<html lang="en" data-theme="light">
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Your App</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tic-Tac-Toe Plus</title>
+<link href="manifest.json" rel="manifest"/><meta content="#ffffff" id="meta-theme-color" name="theme-color"/><style id="pwa-theme-style">
+/* === PWA Theme + Menu (non-invasive) === */
+:root { color-scheme: light dark; }
+html[data-theme="dark"] body { background-color: #0b1220 !important; color: #e5e7eb !important; }
+html[data-theme="light"] body { background-color: #ffffff !important; color: #0f172a !important; }
 
-  <meta name="theme-color" id="meta-theme-color" content="#ffffff" />
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" href="/icons/icon-192.png" />
-
-  <style>
-    :root {
-      --bg: #ffffff;
-      --card: #f6f7f9;
-      --text: #0f172a;
-      --muted: #475569;
-      --ring: #e2e8f0;
-      --brand: #2563eb;
-      --brand-contrast: #ffffff;
-      --menu-shadow: 0 8px 30px rgba(0,0,0,.12);
-    }
-    :root[data-theme="dark"] {
-      --bg: #0b1220;
-      --card: #111827;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --ring: #1f2937;
-      --brand: #3b82f6;
-      --brand-contrast: #0b1220;
-      --menu-shadow: 0 10px 40px rgba(0,0,0,.45);
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: var(--bg); color: var(--text);
-    }
-    .appbar {
-      position: sticky; top: 0; z-index: 50;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; background: var(--card); border-bottom: 1px solid var(--ring);
-    }
-    .brand { font-weight: 700; letter-spacing: .2px; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 12px; border-radius: 12px; border: 1px solid var(--ring);
-      background: transparent; color: var(--text); cursor: pointer;
-    }
-    .btn.brand { background: var(--brand); color: var(--brand-contrast); border-color: transparent; }
-    .btn:focus { outline: 2px solid var(--brand); outline-offset: 2px; }
-    .menu-wrap { position: relative; }
-    .menu {
-      position: absolute; right: 0; top: calc(100% + 8px);
-      min-width: 240px; background: var(--card); border: 1px solid var(--ring);
-      box-shadow: var(--menu-shadow); border-radius: 14px; padding: 8px; display: none;
-    }
-    .menu.open { display: block; animation: pop .12s ease-out; }
-    @keyframes pop { from { transform: translateY(-4px); opacity: .0;} to { transform: translateY(0); opacity: 1;} }
-    .menu section { padding: 6px 6px; }
-    .menu h4 { margin: 8px 8px 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .item {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 10px 12px; border-radius: 10px; cursor: pointer; user-select: none;
-    }
-    .item:hover { background: rgba(127,127,127,.08); }
-    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; color: var(--muted); }
-    .container { max-width: 960px; margin: 24px auto; padding: 0 16px; }
-    .card { background: var(--card); border: 1px solid var(--ring); border-radius: 16px; padding: 16px; }
-    .muted { color: var(--muted); }
-    .switch { position: relative; width: 46px; height: 28px; background: var(--ring); border-radius: 999px; transition: .2s; }
-    .switch i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: var(--brand); border-radius: 50%; transition: .2s; }
-    .switch.on { background: rgba(59,130,246,.25); }
-    .switch.on i { left: 21px; }
-    .badge { display:inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--ring); font-size: 12px; }
-  </style>
-</head>
+#pwa-fab {
+  position: fixed; right: 16px; bottom: 16px; z-index: 2147483647;
+  border: none; border-radius: 999px; padding: 12px 14px; cursor: pointer;
+  background: #2563eb; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  font: 600 14px/1 system-ui, -apple-system, Segoe UI, Roboto;
+}
+#pwa-panel {
+  position: fixed; right: 16px; bottom: 64px; z-index: 2147483646;
+  width: 280px; background: rgba(17,23,39,.98); color: #e5e7eb;
+  border-radius: 14px; padding: 12px; display: none; backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.08);
+}
+html[data-theme="light"] #pwa-panel { background: #f6f7f9; color: #0f172a; }
+#pwa-panel.open { display: block; }
+#pwa-panel h4 { margin: 6px 6px 8px; font-size: 12px; opacity: .75; text-transform: uppercase; letter-spacing: .08em; }
+.pwa-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px; border-radius: 10px; cursor: pointer; user-select: none;
+}
+.pwa-item:hover { background: rgba(127,127,127,.12); }
+.pwa-kbd { font: 12px ui-monospace, Menlo, Consolas, monospace; opacity: .7; }
+.pwa-switch { position: relative; width: 46px; height: 28px; background: rgba(148,163,184,.25); border-radius: 999px; }
+.pwa-switch i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #3b82f6; border-radius: 50%; transition: .2s; }
+.pwa-switch.on { background: rgba(59,130,246,.25); }
+.pwa-switch.on i { left: 21px; }
+.pwa-badge { border: 1px solid rgba(148,163,184,.45); padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+</style></head>
 <body>
-  <header class="appbar" role="banner">
-    <div class="brand">Your App</div>
-    <div class="menu-wrap">
-      <button class="btn" id="menuBtn" aria-haspopup="true" aria-expanded="false">☰ Menu</button>
-      <div class="menu" id="menu" role="menu" aria-label="App menu">
-        <section>
-          <h4>Quick actions</h4>
-          <div class="item" id="installItem" role="menuitem">
-            <span>Install app to Home Screen</span>
-            <span class="kbd">PWA</span>
-          </div>
-          <div class="item" id="reloadItem" role="menuitem">
-            <span>Reload</span>
-            <span class="kbd">Ctrl/⌘ R</span>
-          </div>
-        </section>
-        <section>
-          <h4>Appearance</h4>
-          <div class="item" id="themeItem" role="menuitem" aria-label="Toggle light/dark">
-            <span>Dark Mode</span>
-            <span class="switch" id="themeSwitch"><i></i></span>
-          </div>
-        </section>
-        <section>
-          <h4>Status</h4>
-          <div class="item" role="status">
-            <span>Offline</span>
-            <span class="badge" id="offlineBadge">Checking…</span>
-          </div>
-          <div class="item" role="menuitem" id="aboutItem">
-            <span>About</span>
-            <span class="kbd">v1.0</span>
-          </div>
-        </section>
-      </div>
-    </div>
-  </header>
+<div id="root"></div>
+<script src="/src/main.tsx" type="module"></script>
 
-  <main class="container">
-    <div class="card">
-      <h1>Welcome 👋</h1>
-      <p class="muted">This shell adds a theme toggle and an app menu with an Install option. Integrate it into your existing layout or start from here.</p>
-    </div>
-  </main>
+<button id="pwa-fab" title="App menu">☰ Menu</button>
+<div aria-label="App menu" id="pwa-panel" role="menu">
+<h4>Quick actions</h4>
+<div class="pwa-item" id="pwa-install"><span>Install app to Home Screen</span><span class="pwa-kbd">PWA</span></div>
+<div class="pwa-item" id="pwa-reload"><span>Reload</span><span class="pwa-kbd">Ctrl/⌘ R</span></div>
+<h4>Appearance</h4>
+<div class="pwa-item" id="pwa-theme"><span>Dark Mode</span><span class="pwa-switch" id="pwa-theme-switch"><i></i></span></div>
+<h4>Status</h4>
+<div class="pwa-item" id="pwa-status"><span>Offline</span><span class="pwa-badge" id="pwa-offline">Checking…</span></div>
+</div>
 
-  <script>
-    // THEME
-    const root = document.documentElement;
-    const themeSwitch = document.getElementById('themeSwitch');
-    const metaTheme = document.getElementById('meta-theme-color');
-    function systemPrefersDark() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
-    function applyTheme(theme) {
-      const isDark = theme === 'dark';
-      root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      themeSwitch.classList.toggle('on', isDark);
-      metaTheme.setAttribute('content', isDark ? '#0b1220' : '#ffffff');
+<script id="pwa-theme-script">
+(function(){
+  const root = document.documentElement;
+  const metaTheme = document.getElementById('meta-theme-color');
+  let deferredPrompt = null;
+
+  function systemPrefersDark(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function applyTheme(theme){
+    const isDark = theme === 'dark';
+    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    const sw = document.getElementById('pwa-theme-switch');
+    if (sw) sw.classList.toggle('on', isDark);
+    if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0b1220' : '#ffffff');
+  }
+  const saved = localStorage.getItem('theme');
+  applyTheme(saved ? saved : (systemPrefersDark() ? 'dark' : 'light'));
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)=>{
+    if(!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
+  });
+
+  function ensurePanel(){
+    if (!document.getElementById('pwa-fab')){
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = "\n<button id=\"pwa-fab\" title=\"App menu\">\u2630 Menu</button>\n<div id=\"pwa-panel\" role=\"menu\" aria-label=\"App menu\">\n  <h4>Quick actions</h4>\n  <div class=\"pwa-item\" id=\"pwa-install\"><span>Install app to Home Screen</span><span class=\"pwa-kbd\">PWA</span></div>\n  <div class=\"pwa-item\" id=\"pwa-reload\"><span>Reload</span><span class=\"pwa-kbd\">Ctrl/\u2318 R</span></div>\n  <h4>Appearance</h4>\n  <div class=\"pwa-item\" id=\"pwa-theme\"><span>Dark Mode</span><span class=\"pwa-switch\" id=\"pwa-theme-switch\"><i></i></span></div>\n  <h4>Status</h4>\n  <div class=\"pwa-item\" id=\"pwa-status\"><span>Offline</span><span class=\"pwa-badge\" id=\"pwa-offline\">Checking\u2026</span></div>\n</div>\n";
+      document.body.appendChild(wrapper);
     }
-    const saved = localStorage.getItem('theme');
-    applyTheme(saved ? saved : (systemPrefersDark() ? 'dark' : 'light'));
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'dark' : 'light');
-    });
-    document.getElementById('themeItem').addEventListener('click', () => {
-      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('theme', next); applyTheme(next);
-    });
+  }
 
-    // MENU
-    const menuBtn = document.getElementById('menuBtn');
-    const menu = document.getElementById('menu');
-    function closeMenu(){ menu.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
-    function openMenu(){ menu.classList.add('open'); menuBtn.setAttribute('aria-expanded', 'true'); }
-    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.contains('open') ? closeMenu() : openMenu(); });
-    document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== menuBtn) closeMenu(); });
+  function wire(){
+    const fab = document.getElementById('pwa-fab');
+    const panel = document.getElementById('pwa-panel');
+    const themeItem = document.getElementById('pwa-theme');
+    const themeSwitch = document.getElementById('pwa-theme-switch');
+    const installItem = document.getElementById('pwa-install');
+    const reloadItem = document.getElementById('pwa-reload');
+    const offlineBadge = document.getElementById('pwa-offline');
 
-    // OFFLINE STATUS
-    const offlineBadge = document.getElementById('offlineBadge');
+    if (fab && panel){
+      fab.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        panel.classList.toggle('open');
+      });
+      document.addEventListener('click', (e)=>{
+        if (!panel.contains(e.target) && e.target !== fab) panel.classList.remove('open');
+      });
+    }
+    if (themeItem){
+      themeItem.addEventListener('click', ()=>{
+        const next = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+        localStorage.setItem('theme', next); applyTheme(next);
+      });
+    }
     function updateOnlineStatus(){
       if (navigator.onLine) { offlineBadge.textContent = 'Online'; offlineBadge.style.opacity = .8; }
       else { offlineBadge.textContent = 'Offline'; offlineBadge.style.opacity = 1; }
@@ -161,37 +113,42 @@
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus();
 
-    // PWA INSTALL
-    let deferredPrompt = null;
-    const installItem = document.getElementById('installItem');
-    installItem.style.display = 'none';
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installItem.style.display = 'flex';
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault(); deferredPrompt = e;
+      if (installItem) installItem.style.opacity = 1;
     });
-    installItem.addEventListener('click', async () => {
-      if (!deferredPrompt) { alert('Install not available yet. Try again after browsing a bit.'); return; }
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') installItem.querySelector('span').textContent = 'Installed';
-      deferredPrompt = null;
-    });
-
-    // RELOAD
-    document.getElementById('reloadItem').addEventListener('click', () => location.reload());
-
-    // ABOUT
-    document.getElementById('aboutItem').addEventListener('click', () => {
-      alert('Your App\nPWA shell with theme + menu.');
-    });
-
-    // SW REGISTER
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(console.error);
+    if (installItem){
+      installItem.style.opacity = .6;
+      installItem.addEventListener('click', async ()=>{
+        if (!deferredPrompt){ alert('Install not available yet. Try again after browsing a bit.'); return; }
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') installItem.querySelector('span').textContent = 'Installed';
+        deferredPrompt = null;
       });
     }
-  </script>
+    if (reloadItem){
+      reloadItem.addEventListener('click', ()=> location.reload());
+    }
+
+    // Register SW (relative to this page)
+    if ('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>{
+        const base = document.currentScript && document.currentScript.src ? new URL(document.currentScript.src).pathname : location.pathname;
+        const swPath = (base.endsWith('/') ? '' : base.substring(0, base.lastIndexOf('/')+1)) + 'sw.js';
+        navigator.serviceWorker.register('sw.js').catch(console.error);
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){
+      ensurePanel(); wire();
+    });
+  } else {
+    ensurePanel(); wire();
+  }
+})();
+</script>
 </body>
 </html>
