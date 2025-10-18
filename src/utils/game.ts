@@ -17,13 +17,13 @@ export const linesFor = (n: number): number[][] => {
     for (let r=0; r<n; r++) col.push(r*n + c);
     lines.push(col);
   }
-  // diag   const d1: number[] = [];
-  for (let i=0; i<n; i++) d1.push(i*n + i);
-  lines.push(d1);
+  // diag   const diag1: number[] = [];
+  for (let i=0; i<n; i++) diag1.push(i*n + i);
+  lines.push(diag1);
   // diag /
-  const d2: number[] = [];
-  for (let i=0; i<n; i++) d2.push(i*n + (n-1-i));
-  lines.push(d2);
+  const diag2: number[] = [];
+  for (let i=0; i<n; i++) diag2.push(i*n + (n-1-i));
+  lines.push(diag2);
   return lines;
 };
 
@@ -46,7 +46,6 @@ export const nextPlayer = (cells: Cell[]): Player => {
   return x === o ? "X" : "O";
 };
 
-// Super-simple AI: pick first empty; upgrade later to minimax/randomized
 export const aiMove = (cells: Cell[]): number | null => {
   const idx = cells.findIndex(c => c === null);
   return idx >= 0 ? idx : null;
