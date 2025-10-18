@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react'
 import { useStore } from './state/store'
 import Board from './components/Board'
@@ -8,26 +9,26 @@ import { bestMove3x3 } from './ai/minimax'
 import { casualMove } from './ai/casual'
 
 export default function App() {
-  const { state, newGame, move, bomb, swap, doubleMove, undo, setTimer } = useStore()
+  const { state, newGame, move, request, selectCell, undo } = useStore()
 
   // AI move effect
   useEffect(() => {
-    const { players, current, mode, size, board, status } = state
-    if (status !== 'playing') return
+    const { players, current, mode, size, board, status, pending } = state
+    if (status !== 'playing' || pending) return
     const isAI = (current === 'X' ? players.p1 : players.p2) === 'ai'
     if (!isAI) return
-
     const doMove = () => {
       let index = -1
       if (mode === 'classic3') index = bestMove3x3(board, current)
       else index = casualMove(board, size, current)
       if (index >= 0) move(index)
     }
-    const id = setTimeout(doMove, 350)
+    const id = setTimeout(doMove, 250)
     return () => clearTimeout(id)
   }, [state, move])
 
   const onMode = (m: Mode) => newGame(m, state.players)
+  const isPending = !!state.pending
 
   return (
     <div className="app">
@@ -41,19 +42,10 @@ export default function App() {
 
       {state.mode === 'power4' && state.power && (
         <section className="powerbar" aria-label="Power-ups">
-          {(['swap','bomb','double'] as const).map(p => (
-            <button
-              key={p}
-              disabled={!state.power[state.current as 'X'|'O']?.[p]}
-              onClick={() => {}}
-              title={p}
-              className="chip"
-            >
-              {p} {state.power[state.current as 'X'|'O']?.[p] ? '✓' : '—'}
-            </button>
-          ))}
-          {/* For UX: you can wire modal pickers for swap/double targets. For brevity,
-              useBomb/useSwap/useDouble are exposed; trigger them from board UI or small dialogs. */}
+          <button className="chip" disabled={!state.power[state.current]?.swap || isPending} onClick={() => request('swap')}>Swap</button>
+          <button className="chip" disabled={!state.power[state.current]?.bomb || isPending} onClick={() => request('bomb')}>Bomb</button>
+          <button className="chip" disabled={!state.power[state.current]?.double || isPending} onClick={() => request('double')}>Double</button>
+          {isPending && <span className="muted">Select {state.pending?.type==='double' && state.pending.first===undefined ? 'first ' : ''}target on board…</span>}
         </section>
       )}
 
@@ -62,7 +54,7 @@ export default function App() {
           size={state.size}
           board={state.board}
           winLine={state.winLine}
-          onClick={(i) => move(i)}
+          onClick={(i) => state.pending ? selectCell(i) : move(i)}
         />
       </main>
 

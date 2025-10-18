@@ -1,3 +1,4 @@
+
 :root { --bg:#0b0f19; --panel:#101828; --fg:#e5e7eb; --muted:#9ca3af; --brand:#0ea5e9; --win:#22c55e; }
 * { box-sizing: border-box }
 html,body,#root { height:100% }
@@ -11,16 +12,17 @@ body { margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Apple 
 button { cursor:pointer; border:none; border-radius:.75rem; padding:.6rem .9rem; background:#1f2937; color:var(--fg); }
 button.primary { background:var(--brand); color:#001018; font-weight:700; }
 button.ghost { background:transparent; border:1px solid #334155; }
+.muted { color: var(--muted); margin-left: .5rem; }
 
 .stage { display:grid; place-items:center; padding:2rem; }
 .board { display:grid; gap:.75rem; width:min(92vw, 480px); }
 .cell { aspect-ratio:1; display:grid; place-items:center; background:#0f172a; border:1px solid #243047; border-radius:1rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 6px 24px rgba(0,0,0,.35); font-size:2.2rem; color:var(--fg); }
 .cell:hover { outline:2px solid rgba(14,165,233,.25); }
 .cell-win { outline:3px solid var(--win); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
-.mark.x { color:#f43f5e } /* rose */
-.mark.o { color:#38bdf8 } /* sky */
+.mark.x { color:#f43f5e }
+.mark.o { color:#38bdf8 }
 
-.powerbar { display:flex; gap:.5rem; margin:1rem auto 0; justify-content:center; }
+.powerbar { display:flex; gap:.5rem; margin:1rem auto 0; justify-content:center; align-items:center; }
 .chip { background:#0f172a; border:1px solid #243047 }
 
 .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:grid; place-items:center; padding:1rem; }

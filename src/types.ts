@@ -1,3 +1,4 @@
+
 export type Mark = 'X' | 'O'
 export type Cell = Mark | null
 export type PlayerKind = 'human' | 'ai'
@@ -22,8 +23,9 @@ export interface GameState {
   players: Players
   status: 'playing' | 'win' | 'draw'
   winner?: Mark
-  winLine?: number[]   // indices that formed the win
+  winLine?: number[]
   power?: Record<Mark, PowerPack>
   timer?: { enabled: boolean; perTurnMs: number; startedAt?: number }
   history: { board: Cell[]; desc: string }[]
+  pending?: { type: 'swap'|'bomb'|'double', first?: number }
 }

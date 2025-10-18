@@ -1,4 +1,2 @@
-
-# Request reviews automatically for critical paths
-/src/game-core/* @Daniel-Estrada
-/.github/workflows/* @Daniel-Estrada
+/src/game-core/* @your-username
+/.github/workflows/* @your-username

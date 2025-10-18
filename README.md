@@ -1,16 +1,20 @@
 
-# TicTacToe+ Starter
+# TicTacToe+ (PWA)
+Modern, animated, offline-first Tic-Tac-Toe with multiple modes and power-ups. Built with Vite + React + TypeScript.
 
-This is a starter pack for a Vite + React + TypeScript PWA deployed on GitHub Pages under `/tictactoe-plus/`.
+## Dev
+```bash
+npm install
+npm run dev
+```
+## Build
+```bash
+npm run build
+npm run preview
+```
 
-## Quick start
-1. Scaffold a Vite app:
-   ```bash
-   npm create vite@latest tictactoe-plus -- --template react-ts
-   cd tictactoe-plus
-   npm install
-   ```
-2. Copy these files over the scaffold (keep `package.json`).
-3. Commit to a **private** repo and push to `main`.
-4. Enable GitHub Pages (Settings → Pages → Source: GitHub Actions).
-5. Push any change to trigger build & deploy.
+## Deploy (GitHub Pages)
+- Ensure `vite.config.ts` has `base: '/tictactoe-plus/'`
+- Use the provided CI workflow in `.github/workflows/ci.yml`
+- Repo Settings → Pages → Source = GitHub Actions
+- Push to `main` → site at `https://<username>.github.io/tictactoe-plus/`
