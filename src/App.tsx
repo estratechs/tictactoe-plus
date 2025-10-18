@@ -12,16 +12,18 @@ type Mode = 3 | 4 | 5;
 const useSound = () => {
   const ctxRef = useRef<AudioContext | null>(null);
   const beep = (freq: number, dur = 0.07, type: OscillatorType = "sine") => {
-    if (!ctxRef.current) ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const ctx = ctxRef.current;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = type; o.frequency.value = freq;
-    o.connect(g); g.connect(ctx.destination);
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
-    o.start(); o.stop(ctx.currentTime + dur);
+    try {
+      if (!ctxRef.current) ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = ctxRef.current;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type; o.frequency.value = freq;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      o.start(); o.stop(ctx.currentTime + dur);
+    } catch {}
   };
   return {
     place: () => beep(420, 0.06, "triangle"),
@@ -61,9 +63,11 @@ export const App = () => {
     if (win) {
       if (win.player === "X") setXScore(s => s+1); else setOScore(s => s+1);
       sounds.win();
-      // confetti from center of winning line
-      const rect = (document.querySelector(".board-wrap") as HTMLElement)?.getBoundingClientRect();
-      if (rect) spawnConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
+      const wrap = document.querySelector(".board-wrap") as HTMLElement | null;
+      if (wrap) {
+        const rect = wrap.getBoundingClientRect();
+        spawnConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
+      }
       if (navigator.vibrate) navigator.vibrate([30]);
     }
   }, [win]);
@@ -86,8 +90,8 @@ export const App = () => {
     const fc = first % n, fr = Math.floor(first / n);
     const lc = last % n, lr = Math.floor(last / n);
     const cell = (boardPx - gap*(n-1))/n;
-    const x = Math.min(fc, lc)* (cell+gap) + cell/2;
-    const y = Math.min(fr, lr)* (cell+gap) + cell/2;
+    let x = Math.min(fc, lc)* (cell+gap) + cell/2;
+    let y = Math.min(fr, lr)* (cell+gap) + cell/2;
     let length = 0, angle = 0;
     if (fr === lr) { // row
       length = (cell+gap)*(n-1) + 1;
@@ -115,7 +119,7 @@ export const App = () => {
       <AnimatedBg />
       <div className="container">
         <div className="header">
-          <h1>Tic‑Tac‑Toe <span style={{ color: "var(--accent)" }}>Plus</span></h1>
+          <h1>Tic-Tac-Toe <span style={{ color: "var(--accent)" }}>Plus</span></h1>
           <div className="toolbar" role="toolbar" aria-label="Game controls">
             <select
               className="select"

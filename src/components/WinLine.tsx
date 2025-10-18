@@ -12,7 +12,7 @@ export const WinLine = ({ x, y, length, angle, show }: Props) => (
       left: x, top: y,
       width: length, height: 6,
       transformOrigin: "left center",
-      rotate: angle + "deg",
+      rotate: angle, // numeric degrees so Framer handles "deg"
       borderRadius: 9999,
       background: "linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.9), rgba(255,255,255,.0))",
       animation: show ? "pulseGlow 1.5s ease-in-out infinite" : undefined as any
