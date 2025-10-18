@@ -1,4 +1,3 @@
-
 import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./App";
@@ -25,7 +24,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
       return (
         <div style={{padding:24, color:"#fff", fontFamily:"sans-serif"}}>
           <h2>Something went wrong loading the app.</h2>
-          <p>Open the browser console for details. If this persists, try the hotfix <code>main.tsx</code> or check your root div id in <code>index.html</code>.</p>
+          <p>Open the browser console for details. You can also add <code>?nuke=1</code> to the URL once to clear any old PWA caches.</p>
         </div>
       );
     }
@@ -34,8 +33,6 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 }
 
 const rootEl = ensureRoot();
-
-// Support React 17 and 18:
 const anyReactDOM: any = ReactDOM as any;
 if (anyReactDOM.createRoot) {
   anyReactDOM.createRoot(rootEl).render(
@@ -46,7 +43,6 @@ if (anyReactDOM.createRoot) {
     </React.StrictMode>
   );
 } else {
-  // React 17 fallback
   anyReactDOM.render(
     <React.StrictMode>
       <ErrorBoundary>

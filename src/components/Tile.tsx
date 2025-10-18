@@ -1,12 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { Cell } from "../utils/game";
-
-type Props = {
-  value: Cell;
-  onClick: () => void;
-  disabled?: boolean;
-};
-
+type Props = { value: Cell; onClick: () => void; disabled?: boolean; };
 export const Tile = ({ value, onClick, disabled }: Props) => (
   <motion.button
     className="tile"
