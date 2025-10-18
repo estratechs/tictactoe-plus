@@ -1,32 +1,84 @@
-
-import React, { useState } from 'react'
-
-type Cell = 'X' | 'O' | null;
-const size = 3;
+import React, { useEffect } from 'react'
+import { useStore } from './state/store'
+import Board from './components/Board'
+import Modal from './components/Modal'
+import { HUD } from './components/HUD'
+import type { Mode } from './types'
+import { bestMove3x3 } from './ai/minimax'
+import { casualMove } from './ai/casual'
 
 export default function App() {
-  const [board, setBoard] = useState<Cell[]>(Array(size*size).fill(null));
-  const [turn, setTurn] = useState<'X'|'O'>('X');
+  const { state, newGame, move, bomb, swap, doubleMove, undo, setTimer } = useStore()
 
-  function clickCell(i: number) {
-    if (board[i]) return;
-    const next = board.slice();
-    next[i] = turn;
-    setBoard(next);
-    setTurn(turn === 'X' ? 'O' : 'X');
-  }
+  // AI move effect
+  useEffect(() => {
+    const { players, current, mode, size, board, status } = state
+    if (status !== 'playing') return
+    const isAI = (current === 'X' ? players.p1 : players.p2) === 'ai'
+    if (!isAI) return
+
+    const doMove = () => {
+      let index = -1
+      if (mode === 'classic3') index = bestMove3x3(board, current)
+      else index = casualMove(board, size, current)
+      if (index >= 0) move(index)
+    }
+    const id = setTimeout(doMove, 350)
+    return () => clearTimeout(id)
+  }, [state, move])
+
+  const onMode = (m: Mode) => newGame(m, state.players)
 
   return (
-    <div style={{fontFamily:'system-ui, sans-serif', display:'grid', placeItems:'center', minHeight:'100vh'}}>
-      <h1>TicTacToe+</h1>
-      <p>Turn: {turn}</p>
-      <div style={{display:'grid', gridTemplateColumns:`repeat(${size}, 80px)`, gap:'8px'}}>
-        {board.map((c, i) => (
-          <button key={i} onClick={() => clickCell(i)} style={{width:80, height:80, fontSize:32}}>
-            {c ?? ''}
-          </button>
-        ))}
-      </div>
+    <div className="app">
+      <HUD
+        mode={state.mode}
+        current={state.current}
+        onNew={() => newGame(state.mode, state.players)}
+        onUndo={undo}
+        onMode={onMode}
+      />
+
+      {state.mode === 'power4' && state.power && (
+        <section className="powerbar" aria-label="Power-ups">
+          {(['swap','bomb','double'] as const).map(p => (
+            <button
+              key={p}
+              disabled={!state.power[state.current as 'X'|'O']?.[p]}
+              onClick={() => {}}
+              title={p}
+              className="chip"
+            >
+              {p} {state.power[state.current as 'X'|'O']?.[p] ? '✓' : '—'}
+            </button>
+          ))}
+          {/* For UX: you can wire modal pickers for swap/double targets. For brevity,
+              useBomb/useSwap/useDouble are exposed; trigger them from board UI or small dialogs. */}
+        </section>
+      )}
+
+      <main className="stage">
+        <Board
+          size={state.size}
+          board={state.board}
+          winLine={state.winLine}
+          onClick={(i) => move(i)}
+        />
+      </main>
+
+      <Modal open={state.status !== 'playing'} onClose={() => newGame(state.mode, state.players)}>
+        <div className="result">
+          {state.status === 'win' ? (
+            <h2><span className="badge">🏆</span> Winner: {state.winner}</h2>
+          ) : (
+            <h2>It’s a draw!</h2>
+          )}
+          <div className="row">
+            <button className="primary" onClick={() => newGame(state.mode, state.players)}>Play again</button>
+            <button className="ghost" onClick={() => onMode('classic3')}>Switch to Classic</button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
