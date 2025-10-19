@@ -5,7 +5,7 @@ export const Tile = ({ value, onClick, disabled }: Props) => (
   <motion.button
     className="tile"
     disabled={disabled || !!value}
-    onClick={onClick}
+    onKeyDown={(e)=>{if(e.key==='Enter'||e.key===' '){(e.target as HTMLElement).click();}}} onClick={onClick}
     initial={false}
     whileHover={{ scale: value ? 1 : 1.05 }}
     whileTap={{ scale: 0.95 }}

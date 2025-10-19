@@ -16,7 +16,7 @@ export default function Board({ size, board, onClick, winLine }:{
             role="gridcell"
             aria-label={`Cell ${Math.floor(i/size)+1}, ${i%size+1} ${c?`occupied ${c}`:'empty'}`}
             className={`cell ${winning ? 'cell-win' : ''} aria-live="polite"`}
-            onClick={() => onClick(i)}
+            onKeyDown={(e)=>{if(e.key==='Enter'||e.key===' '){(e.target as HTMLElement).click();}}} onClick={() => onClick(i)}
             whileTap={{ scale: 0.95 }}
           >
             <motion.span
