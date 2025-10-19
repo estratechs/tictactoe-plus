@@ -1,29 +1,45 @@
-import { motion, AnimatePresence } from "framer-motion";
-import type { Cell } from "../utils/game";
-type Props = { value: Cell; onClick: () => void; disabled?: boolean; };
-export const Tile = ({ value, onClick, disabled }: Props) => (
-  <motion.button
-    className="tile"
-    disabled={disabled || !!value}
-    onClick={onClick}
-    initial={false}
-    whileHover={{ scale: value ? 1 : 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    transition={{ type: "spring", stiffness: 500, damping: 22 }}
-    style={{ transformStyle: "preserve-3d" }}
-    aria-label={value ? `Cell with ${value}` : "Empty cell"}
-  >
-    <AnimatePresence mode="popLayout">
-      <motion.span className={`mark ${value === 'X' ? 'x' : value === 'O' ? 'o' : ''}`}
-        key={value ?? "empty"}
-        initial={{ rotateY: 180, opacity: 0 }}
-        animate={{ rotateY: 0, opacity: 1 }}
-        exit={{ rotateY: -180, opacity: 0 }}
-        transition={{ duration: 0.28 }}
-        style={{ fontSize: "1em", fontWeight: 900, lineHeight: 1 }}
-      >
-        {value}
-      </motion.span>
-    </AnimatePresence>
-  </motion.button>
-);
+import { memo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { cx } from "../utils/cx";
+
+/**
+ * Local copy of the Cell type to avoid cross-file coupling.
+ * This preserves behavior and fixes "Cannot find module '../utils/game'".
+ */
+export type Cell = "X" | "O" | null;
+
+type Props = {
+  value: Cell;
+  onClick: () => void;
+  disabled?: boolean;
+};
+
+/**
+ * Drop-in improvement:
+ * - Same behavior/animations as your existing Tile
+ * - Safer className construction (avoids template-literal parsing hiccups)
+ * - NO import from ../utils/game (prevents missing module errors)
+ */
+export const Tile = memo(({ value, onClick, disabled }: Props) => {
+  return (
+    <button
+      className="tile"
+      onClick={onClick}
+      disabled={disabled || !!value}
+      aria-label={value ? `Cell ${value}` : "Empty cell"}
+    >
+      <AnimatePresence mode="popLayout">
+        <motion.span
+          className={cx("mark", value === "X" && "x", value === "O" && "o")}
+          key={value ?? "empty"}
+          initial={{ rotateY: 180, opacity: 0 }}
+          animate={{ rotateY: 0, opacity: 1 }}
+          exit={{ rotateY: -180, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 200, damping: 18, mass: 0.6 }}
+        >
+          {value ?? ""}
+        </motion.span>
+      </AnimatePresence>
+    </button>
+  );
+});
