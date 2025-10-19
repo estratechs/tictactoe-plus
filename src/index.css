@@ -44,7 +44,7 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
 .select{appearance:none}.button[disabled]{opacity:.5;cursor:not-allowed}
 
 .board-wrap{position:relative;perspective:800px;margin:18px 0 12px}
-.board{display:grid;gap:10px;transform-style:preserve-3d;margin:0 auto}
+.board{display:grid;gap:5px;transform-style:preserve-3d;margin:0 auto}
 
 .tile{
   width:clamp(72px,12vw,110px);height:clamp(72px,12vw,110px);
