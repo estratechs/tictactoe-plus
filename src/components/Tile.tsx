@@ -1,7 +1,12 @@
 import { memo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Cell } from "../utils/game";
 import { cx } from "../utils/cx";
+
+/**
+ * Local copy of the Cell type to avoid cross-file coupling.
+ * This preserves behavior and fixes "Cannot find module '../utils/game'".
+ */
+export type Cell = "X" | "O" | null;
 
 type Props = {
   value: Cell;
@@ -9,6 +14,12 @@ type Props = {
   disabled?: boolean;
 };
 
+/**
+ * Drop-in improvement:
+ * - Same behavior/animations as your existing Tile
+ * - Safer className construction (avoids template-literal parsing hiccups)
+ * - NO import from ../utils/game (prevents missing module errors)
+ */
 export const Tile = memo(({ value, onClick, disabled }: Props) => {
   return (
     <button
