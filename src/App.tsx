@@ -1,3 +1,12 @@
+import { useEffect, useState } from 'react';
+function useLocalStorage(key, initial) {
+  const [val, setVal] = useState(() => {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch { return initial; }
+  });
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }, [key, val]);
+  return [val, setVal];
+}
+
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AnimatedBg } from "./components/AnimatedBg";
@@ -154,3 +163,16 @@ export const App = () => {
     </>
   );
 };
+
+
+// Simple settings footer
+export function SettingsFooter(){
+  const [anim, setAnim] = useLocalStorage('t3.anim', true);
+  const [sound, setSound] = useLocalStorage('t3.sound', false);
+  return (
+    <div style={{marginTop:24, display:'flex', gap:16, justifyContent:'center', fontSize:14}}>
+      <label><input type="checkbox" checked={anim} onChange={e=>setAnim(e.target.checked)} /> Animations</label>
+      <label><input type="checkbox" checked={sound} onChange={e=>setSound(e.target.checked)} /> Sound</label>
+    </div>
+  );
+}

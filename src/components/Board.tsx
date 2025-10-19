@@ -15,7 +15,7 @@ export default function Board({ size, board, onClick, winLine }:{
             key={i}
             role="gridcell"
             aria-label={`Cell ${Math.floor(i/size)+1}, ${i%size+1} ${c?`occupied ${c}`:'empty'}`}
-            className={`cell ${winning ? 'cell-win' : ''}`}
+            className={`cell ${winning ? 'cell-win' : ''} aria-live="polite"`}
             onClick={() => onClick(i)}
             whileTap={{ scale: 0.95 }}
           >
@@ -30,6 +30,6 @@ export default function Board({ size, board, onClick, winLine }:{
           </motion.button>
         )
       })}
-    </div>
+    </button>
   )
 }

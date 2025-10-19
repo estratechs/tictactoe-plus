@@ -1,30 +1,33 @@
 {
-  "name": "TicTacToe+",
-  "short_name": "T3+",
-  "start_url": "/tictactoe-plus/?source=pwa",
+  "name": "TicTacToe Plus",
+  "short_name": "T3 Plus",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b0f19",
+  "background_color": "#0b0f1a",
   "theme_color": "#0ea5e9",
+  "description": "A polished, offline-friendly Tic-Tac-Toe PWA with animations and stats.",
   "icons": [
     {
-      "src": "/tictactoe-plus/icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/tictactoe-plus/icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/tictactoe-plus/icons/maskable-512.png",
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "maskable"
     }
-  ],
-  "categories": [
-    "games",
-    "puzzle"
   ]
 }
