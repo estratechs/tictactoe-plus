@@ -37,24 +37,8 @@ export function SettingsFooter(){
   );
 }
 
-// Installation prompt nudge
-(function setupInstallNudge(){
-  let deferred: any = null;
-  self.addEventListener('beforeinstallprompt', (e: any) => {
-    e.preventDefault(); deferred = e;
-    const nudge = document.getElementById('install-nudge');
-    if (nudge) nudge.hidden = false;
-    document.getElementById('install-btn')?.addEventListener('click', async () => {
-      nudge && (nudge.hidden = true);
-      await deferred.prompt(); deferred = null;
-    }, { once: true });
-    document.getElementById('install-dismiss')?.addEventListener('click', () => {
-      nudge && (nudge.hidden = true);
-    }, { once: true });
-  });
-})();
-
-export { haptics, blip, UndoRedoBar };
+// --- Enhancements injected ---
+export {};
 // --- End enhancements ---
 
 import { useState } from 'react'
