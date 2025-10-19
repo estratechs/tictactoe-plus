@@ -1,0 +1,76 @@
+/* Mobile UX overrides — safe to drop into /public and link as <link rel="stylesheet" href="/mobile.css"> */
+
+/* 1) Global base: fluid type, tighter layout on small screens */
+@media (max-width: 480px){
+  html { font-size: clamp(15px, 3.6vw, 17px); }
+  body { padding: 12px; }
+}
+
+/* 2) Buttons & tap targets */
+button, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3) PWA floating menu button & panel: safe-area, bigger target, better spacing */
+#pwa-fab {
+  right: calc(16px + env(safe-area-inset-right));
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  padding: 14px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+#pwa-panel {
+  right: calc(16px + env(safe-area-inset-right));
+  bottom: calc(80px + env(safe-area-inset-bottom));
+  width: min(92vw, 320px);
+  max-height: min(70vh, 520px);
+  overflow: auto;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+#pwa-panel .pwa-item { padding: 12px; }
+
+/* 4) Tic-Tac-Toe grid — apply to multiple likely selectors; non-destructive */
+.board, #board, [data-board], .board-grid {
+  margin: 12px auto 20px !important;
+  width: min(92vw, 460px) !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: clamp(8px, 2.8vw, 14px) !important;
+}
+
+/* Tiles — make square, larger marks, comfy touch radius.
+   Target common candidates to avoid relying on exact class names. */
+.board button, #board button, [data-board] button,
+.board .tile, #board .tile, [data-board] .tile,
+.tile, .Tile {
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  font-size: clamp(28px, 10vw, 56px);
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+/* 5) Controls & scoreboard centering on narrow screens */
+@media (max-width: 480px){
+  .controls, #controls, [data-controls],
+  .score, #score, [data-score] {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    text-align: center; margin-inline: auto;
+  }
+}
+
+/* 6) Hide desktop-only tips on touch devices */
+@media (hover: none) and (pointer: coarse){
+  .tip, .hover-tip, [data-desktop-tip] { display: none !important; }
+}
+
+/* 7) Prevent layout jank from keyboard & URL bar — use dynamic viewport unit fallback */
+:root {
+  --vh: 1vh;
+}
+@supports (height: 100dvh) {
+  :root { --vh: 1dvh; }
+}
+/* You can use var(--vh) in your own CSS if needed: height: calc(var(--vh) * 100); */
