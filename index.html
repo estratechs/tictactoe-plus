@@ -2,28 +2,29 @@
 <html data-theme="light" lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Tic-Tac-Toe Plus</title>
 
-  <!-- Single manifest link -->
-  <link rel="manifest" href="/manifest.webmanifest">
+  <!-- Single manifest link (RELATIVE for GitHub Pages) -->
+  <link rel="manifest" href="manifest.webmanifest">
 
-   <!-- Mobile Friendly link -->
-  <link rel="stylesheet" href="/mobile.css">
+  <!-- Mobile Friendly CSS (RELATIVE) -->
+  <link rel="stylesheet" href="mobile.css">
 
-  <!-- Theme color (will be updated dynamically) -->
+  <!-- Theme color (updated dynamically) -->
   <meta name="theme-color" id="meta-theme-color" content="#ffffff"/>
 
   <!-- Apple PWA support -->
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="TicTacToe Plus">
 
-  <!-- Social cards -->
+  <!-- Social cards (relative image for GH Pages) -->
   <meta property="og:title" content="TicTacToe Plus" />
   <meta property="og:description" content="A premium-feel Tic-Tac-Toe with offline support, animations, and stats." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/icons/icon-512.png" />
+  <meta property="og:image" content="icons/icon-512.png" />
   <meta name="twitter:card" content="summary_large_image" />
 
   <style id="pwa-theme-style">
@@ -62,7 +63,7 @@
 
 <body>
   <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+  <script type="module" src="src/main.tsx"></script>
 
   <!-- Minimal built-in menu -->
   <button id="pwa-fab" title="App menu" aria-haspopup="true" aria-expanded="false">☰ Menu</button>
@@ -196,43 +197,22 @@
       }
     }
 
-    // Register SW at root scope
+    // Register SW using RELATIVE path for GitHub Pages project sites
     if ('serviceWorker' in navigator){
       window.addEventListener('load', ()=>{
-        navigator.serviceWorker.register('/sw.js').catch(console.error);
+        navigator.serviceWorker.register('sw.js', { scope: './' }).catch(console.error);
       });
-    }
-
-    // Ensure elements exist, then wire
-    function ensureMenu(){
-      if (!$('pwa-fab') || !$('pwa-panel')) {
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = '<button id="pwa-fab" title="App menu" aria-haspopup="true" aria-expanded="false">☰ Menu</button>' +
-          '<div id="pwa-panel" role="menu" aria-label="App menu">' +
-          '  <h4>Quick actions</h4>' +
-          '  <div class="pwa-item" id="pwa-install"><span>Install app to Home Screen</span><span class="pwa-kbd">PWA</span></div>' +
-          '  <div class="pwa-item" id="pwa-reload"><span>Reload</span><span class="pwa-kbd">Ctrl/⌘ R</span></div>' +
-          '  <h4>Appearance</h4>' +
-          '  <div class="pwa-item" id="pwa-theme"><span>Dark Mode</span><span class="pwa-switch" id="pwa-theme-switch"><i></i></span></div>' +
-          '  <h4>Status</h4>' +
-          '  <div class="pwa-item" id="pwa-status"><span>Offline</span><span class="pwa-badge" id="pwa-offline">Checking…</span></div>' +
-          '</div>';
-        document.body.appendChild(wrapper);
-      }
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function(){
-        ensureMenu(); wireMenu();
-      });
+      document.addEventListener('DOMContentLoaded', wireMenu);
     } else {
-      ensureMenu(); wireMenu();
+      wireMenu();
     }
   })();
   </script>
 
-     <!-- Mobile Friendly link -->
-  <script src="/mobile-tweaks.js" defer></script>
-  
+  <!-- Mobile tweaks JS (RELATIVE) -->
+  <script src="mobile-tweaks.js" defer></script>
 </body>
 </html>
