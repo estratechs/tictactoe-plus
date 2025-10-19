@@ -1,191 +1,156 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { AnimatedBg } from "./components/AnimatedBg";
 import { Tile } from "./components/Tile";
-import {
-  Cell,
-  emptyBoard,
-  isFull,
-  nextPlayer,
-  winner,
-  aiMove,
-} from "./utils/game";
+import { WinLine } from "./components/WinLine";
+import { aiMove, Cell, emptyBoard, isFull, nextPlayer, winner } from "./utils/game";
+import { spawnConfetti } from "./utils/confetti";
+import { useBoardTilt } from "./hooks/useBoardTilt";
 
 type Mode = 3 | 4 | 5;
 
 const useFlags = () => {
   const q = new URLSearchParams(location.search);
-  const getBool = (k: string, d: boolean) => {
-    const v = q.get(k);
-    if (v === "1" || v === "true") return true;
-    if (v === "0" || v === "false") return false;
-    return d;
+  const get = (k:string, d:boolean) => {
+    const v = q.get(k); if (v === "1" || v === "true") return true; if (v === "0" || v === "false") return false; return d;
   };
-  const getNum = (k: string, d: number) => {
-    const v = q.get(k);
-    return v ? Math.max(3, Math.min(5, Number(v))) || d : d;
+  return { anim: get("anim", true), tilt: get("tilt", true), confetti: get("confetti", true), sounds: get("sounds", true), nuke: get("nuke", false) };
+};
+
+const useSound = (enabled: boolean) => {
+  const ctxRef = useRef<AudioContext | null>(null);
+  const beep = (freq: number, dur = 0.07, type: OscillatorType = "sine") => {
+    if (!enabled) return;
+    try {
+      if (!ctxRef.current) ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = ctxRef.current;
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = type; o.frequency.value = freq;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      o.start(); o.stop(ctx.currentTime + dur);
+    } catch {}
   };
-  return {
-    n: getNum("n", 3) as Mode,
-    vsAI: getBool("ai", true),
-  };
+  return { place: () => beep(420, 0.06, "triangle"), invalid: () => beep(160, 0.08, "sawtooth"), win: () => { [660,880,1046].forEach((f,i)=>setTimeout(()=>beep(f,0.09,"sine"), i*80)); }, };
 };
 
 export const App = () => {
-  const { n, vsAI } = useFlags();
+  const flags = useFlags();
+  // Optional SW/cache nuke on demand (?nuke=1)
+  useEffect(() => {
+    if (flags.nuke && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister()));
+      if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      console.log("[TTT+] Service worker & caches cleared (nuke=1). Reloading...");
+      setTimeout(() => location.reload(), 250);
+    }
+  }, []);
 
-  const [cells, setCells] = useState<Cell[]>(() => emptyBoard(n));
+  const [n, setN] = useState<Mode>(3);
+  const [cells, setCells] = useState<Cell[]>(() => emptyBoard(3));
+  const [vsAI, setVsAI] = useState(false);
   const [xScore, setXScore] = useState(0);
   const [oScore, setOScore] = useState(0);
-
-  // derived
-  const turn = useMemo(() => nextPlayer(cells), [cells]);
+  const sounds = useSound(flags.sounds);
   const win = useMemo(() => winner(cells, n), [cells, n]);
-  const draw = !win && isFull(cells);
+  const turn = nextPlayer(cells);
+  const tiltRef = flags.tilt ? useBoardTilt() : { current: null as any };
 
-  // simple AI (plays as O)
-  useEffect(() => {
-    if (!vsAI || win || draw || turn !== "O") return;
-    const idx = aiMove(cells, n);
-    if (idx == null) return;
-    const t = setTimeout(() => {
-      setCells((prev) => prev.map((v, i) => (i === idx ? "O" : v)));
-    }, 300);
-    return () => clearTimeout(t);
-  }, [vsAI, win, draw, turn, cells, n]);
+  useEffect(() => { setCells(emptyBoard(n)); }, [n]);
 
-  // scoring
   useEffect(() => {
-    if (!win) return;
-    if (win.player === "X") setXScore((s) => s + 1);
-    else setOScore((s) => s + 1);
+    if (!vsAI || win || isFull(cells)) return;
+    if (turn === "O") {
+      const t = setTimeout(() => {
+        const idx = aiMove(cells);
+        if (idx != null) setCells(prev => prev.map((v,i)=> i===idx ? "O" : v));
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [vsAI, win, cells, turn]);
+
+  useEffect(() => {
+    if (win) {
+      if (win.player === "X") setXScore(s => s+1); else setOScore(s => s+1);
+      if (flags.confetti) {
+        const wrap = document.querySelector(".board-wrap") as HTMLElement | null;
+        if (wrap) { const r = wrap.getBoundingClientRect(); spawnConfetti(r.left + r.width/2, r.top + r.height/2); }
+      }
+      try { if (navigator.vibrate) navigator.vibrate([30]); } catch {}
+    }
   }, [win]);
 
   const placeAt = (i: number) => {
-    if (cells[i] || win) return;
-    setCells((prev) => prev.map((v, idx) => (idx === i ? turn : v)));
+    if (cells[i] || win) { sounds.invalid(); return; }
+    setCells(prev => prev.map((v, idx) => idx === i ? turn : v));
+    sounds.place();
   };
 
   const reset = () => setCells(emptyBoard(n));
 
-  // board geometry
-  const boardPx = Math.min(110 * n + 10 * (n - 1), 110 * 5 + 10 * 4);
+  const boardPx = Math.min(110*n + 10*(n-1), 110*5 + 10*4);
   const gap = 10;
-
-  // win line geometry
-  const lineGeom = useMemo(() => {
+  const lineGeom = (() => {
     if (!win) return null;
     const idxs = win.line;
-    const first = idxs[0],
-      last = idxs[idxs.length - 1];
-    const fc = first % n,
-      fr = Math.floor(first / n);
-    const lc = last % n,
-      lr = Math.floor(last / n);
-    const cell = (boardPx - gap * (n - 1)) / n;
-
-    let x = 0,
-      y = 0,
-      length = 0,
-      angle = 0;
-
-    if (fr === lr) {
-      // horizontal
-      length = (cell + gap) * (n - 1) + 1;
-      angle = 0;
-      y = fr * (cell + gap) + cell / 2;
-      x = cell / 2;
-    } else if (fc === lc) {
-      // vertical
-      length = (cell + gap) * (n - 1) + 1;
-      angle = 90;
-      x = fc * (cell + gap) + cell / 2;
-      y = cell / 2;
-    } else if (fr < lr && fc < lc) {
-      // diag TL → BR
-      length = Math.sqrt(2) * ((cell + gap) * (n - 1) + 1);
-      angle = 45;
-      x = cell / 4;
-      y = cell / 4;
-    } else {
-      // diag BL → TR
-      length = Math.sqrt(2) * ((cell + gap) * (n - 1) + 1);
-      angle = -45;
-      x = cell / 4;
-      y = boardPx - cell / 4 - 6;
-    }
+    const first = idxs[0], last = idxs[idxs.length-1];
+    const fc = first % n, fr = Math.floor(first / n);
+    const lc = last % n, lr = Math.floor(last / n);
+    const cell = (boardPx - gap*(n-1))/n;
+    let x = Math.min(fc, lc)* (cell+gap) + cell/2;
+    let y = Math.min(fr, lr)* (cell+gap) + cell/2;
+    let length = 0, angle = 0;
+    if (fr === lr) { length = (cell+gap)*(n-1) + 1; angle = 0; y = fr*(cell+gap) + cell/2; x = 0 + cell/2; }
+    else if (fc === lc) { length = (cell+gap)*(n-1) + 1; angle = 90; x = fc*(cell+gap) + cell/2; y = 0 + cell/2; }
+    else if (fr < lr && fc < lc) { length = Math.sqrt(2) * ((cell+gap)*(n-1) + 1); angle = 45; x = 0 + cell/4; y = 0 + cell/4; }
+    else { length = Math.sqrt(2) * ((cell+gap)*(n-1) + 1); angle = -45; x = 0 + cell/4; y = boardPx - cell/4 - 6; }
     return { x, y, length, angle };
-  }, [win, n, boardPx, gap]);
+  })();
 
   return (
-    <div className="app">
-      <div className="hud">
-        <div>
-          Turn: <strong>{turn}</strong>
+    <>
+      <AnimatedBg />
+      <div className="container">
+        <div className="header">
+          <h1>Tic-Tac-Toe <span style={{ color: "var(--accent)" }}>Plus</span></h1>
+          <div className="toolbar" role="toolbar" aria-label="Game controls">
+            <select className="select" value={n} onChange={e => setN(Number(e.target.value) as Mode)} aria-label="Board size">
+              <option value={3}>3×3</option><option value={4}>4×4</option><option value={5}>5×5</option>
+            </select>
+            <button className="button" onClick={reset}>Reset</button>
+            <label style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+              <input type="checkbox" checked={vsAI} onChange={e => setVsAI(e.target.checked)} aria-label="Play versus AI" /> Vs AI
+            </label>
+            <span className="small">Flags: anim tilt confetti sounds via URL · Add <code>?nuke=1</code> once on GitHub Pages to clear old SW caches.</span>
+          </div>
         </div>
-        <div>
-          Score — X: <strong>{xScore}</strong> · O: <strong>{oScore}</strong>
+        <div className="status" aria-live="polite">
+          {!win && !isFull(cells) && <span>Turn: <strong>{turn}</strong></span>}
+          {win && <span>Winner: <strong style={{ color: "var(--win)" }}>{win.player}</strong></span>}
+          {!win && isFull(cells) && <span>Draw!</span>}
         </div>
-        {(win || draw) && (
-          <button onClick={reset} aria-label="New game">
-            New game
-          </button>
-        )}
+        <div className="board-wrap" style={{ width: boardPx, height: boardPx }}>
+          <motion.div
+            ref={flags.tilt ? (useBoardTilt() as any) : undefined}
+            className="board"
+            style={{ gridTemplateColumns: `repeat(${n}, 1fr)`, width: "100%", height: "100%" }}
+            initial={flags.anim ? { opacity: 0, y: 12 } : false}
+            animate={flags.anim ? { opacity: 1, y: 0 } : undefined}
+            transition={flags.anim ? { duration: .3 } : undefined}
+          >
+            {cells.map((v, i) => (
+              <Tile key={i} value={v} onClick={() => placeAt(i)} disabled={vsAI && turn === "O"} />
+            ))}
+          </motion.div>
+          {lineGeom && <WinLine x={lineGeom.x} y={lineGeom.y} length={lineGeom.length} angle={lineGeom.angle} show={!!win} />}
+        </div>
+        <div className="footer">
+          <div>Score — X: <strong>{xScore}</strong> · O: <strong>{oScore}</strong></div>
+          <div className="small">Tip: hover the board for a subtle 3D tilt</div>
+        </div>
       </div>
-
-      <motion.div
-        className="board"
-        style={{
-          width: boardPx,
-          height: boardPx,
-          display: "grid",
-          gridTemplateColumns: `repeat(${n}, 1fr)`,
-          gap,
-        }}
-        initial={false}
-        animate={{ rotateX: 0, rotateY: 0 }}
-        transition={{ type: "spring", stiffness: 120, damping: 16 }}
-      >
-        {cells.map((v, i) => (
-          <Tile
-            key={i}
-            value={v}
-            onClick={() => placeAt(i)}
-            disabled={vsAI && turn === "O"}
-          />
-        ))}
-      </motion.div>
-
-      {lineGeom && (
-        <div
-          aria-hidden
-          style={{
-            position: "relative",
-            width: boardPx,
-            height: 0,
-            marginTop: -boardPx,
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              left: lineGeom.x,
-              top: lineGeom.y,
-              width: lineGeom.length,
-              height: 6,
-              transform: `rotate(${lineGeom.angle}deg) translate(-50%, -50%)`,
-              transformOrigin: "0 50%",
-              borderRadius: 999,
-              background: "currentColor",
-              opacity: 0.7,
-            }}
-          />
-        </div>
-      )}
-
-      <div className="footer">
-        <div className="small">Tip: press “New game” after a round</div>
-      </div>
-    </div>
+    </>
   );
 };
