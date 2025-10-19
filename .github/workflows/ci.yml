@@ -1,9 +1,9 @@
-
-name: Build and Deploy (Vite + GitHub Pages)
+# .github/workflows/pages.yml
+name: Build & Deploy (Vite → GH Pages)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -12,37 +12,36 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-env:
-  NODE_VERSION: 20
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ env.NODE_VERSION }}
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+      - name: Install
+        run: npm ci
 
-      - name: Build site
+      - name: Typecheck
+        run: npx tsc -p tsconfig.json --noEmit
+
+      - name: Lint
+        run: |
+          if [ -f .eslintrc.* ]; then npx eslint "src/**/*.{ts,tsx}"; fi
+
+      - name: Build
         run: npm run build
 
-      - name: Upload artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
@@ -52,7 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
