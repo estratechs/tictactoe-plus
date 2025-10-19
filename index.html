@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tic-Tac-Toe Plus</title>
 
-  <!-- Use a single manifest link (avoid duplicates) -->
+  <!-- Single manifest link -->
   <link rel="manifest" href="/manifest.webmanifest">
 
-  <!-- Theme color (updated dynamically by script) -->
+  <!-- Theme color (will be updated dynamically) -->
   <meta name="theme-color" id="meta-theme-color" content="#ffffff"/>
 
   <!-- Apple PWA support -->
@@ -24,7 +24,6 @@
   <meta name="twitter:card" content="summary_large_image" />
 
   <style id="pwa-theme-style">
-  /* === PWA Theme + Menu (non-invasive) === */
   :root { color-scheme: light dark; }
   html[data-theme="dark"] body { background-color: #0b1220 !important; color: #e5e7eb !important; }
   html[data-theme="light"] body { background-color: #ffffff !important; color: #0f172a !important; }
@@ -62,8 +61,8 @@
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 
-  <!-- Minimal built-in menu (kept) -->
-  <button id="pwa-fab" title="App menu">☰ Menu</button>
+  <!-- Minimal built-in menu -->
+  <button id="pwa-fab" title="App menu" aria-haspopup="true" aria-expanded="false">☰ Menu</button>
   <div id="pwa-panel" role="menu" aria-label="App menu">
     <h4>Quick actions</h4>
     <div class="pwa-item" id="pwa-install"><span>Install app to Home Screen</span><span class="pwa-kbd">PWA</span></div>
@@ -76,21 +75,22 @@
 
   <script id="pwa-theme-script">
   (function(){
+    function $(id){ return document.getElementById(id); }
     const root = document.documentElement;
-    const metaTheme = document.getElementById('meta-theme-color');
+    const metaTheme = $('meta-theme-color');
     let deferredPrompt = null;
 
     function isIOS(){
       const ua = navigator.userAgent || navigator.vendor || "";
-      return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
+      return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator).maxTouchPoints > 1);
     }
     function isStandalone(){
-      return window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone === true;
+      return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (navigator).standalone === true;
     }
     function applyTheme(theme){
       const isDark = theme === 'dark';
       root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      const sw = document.getElementById('pwa-theme-switch');
+      const sw = $('pwa-theme-switch');
       if (sw) sw.classList.toggle('on', isDark);
       if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0b1220' : '#ffffff');
     }
@@ -103,18 +103,46 @@
       });
     }
 
+    function openPanel(panel, fab){
+      if (!panel) return;
+      panel.classList.add('open');
+      panel.style.display = 'block';
+      if (fab) fab.setAttribute('aria-expanded', 'true');
+    }
+    function closePanel(panel, fab){
+      if (!panel) return;
+      panel.classList.remove('open');
+      panel.style.display = 'none';
+      if (fab) fab.setAttribute('aria-expanded', 'false');
+    }
+
     function wireMenu(){
-      const fab = document.getElementById('pwa-fab');
-      const panel = document.getElementById('pwa-panel');
-      const themeItem = document.getElementById('pwa-theme');
-      const installItem = document.getElementById('pwa-install');
-      const reloadItem = document.getElementById('pwa-reload');
-      const offlineBadge = document.getElementById('pwa-offline');
+      const fab = $('pwa-fab');
+      const panel = $('pwa-panel');
+      const themeItem = $('pwa-theme');
+      const installItem = $('pwa-install');
+      const reloadItem = $('pwa-reload');
+      const offlineBadge = $('pwa-offline');
 
       if (fab && panel){
-        fab.addEventListener('click', (e)=>{ e.stopPropagation(); panel.classList.toggle('open'); });
-        document.addEventListener('click', (e)=>{ if (!panel.contains(e.target) && e.target !== fab) panel.classList.remove('open'); });
+        fab.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          if (panel.classList.contains('open')) closePanel(panel, fab);
+          else openPanel(panel, fab);
+        });
+        // Close when clicking outside
+        document.addEventListener('click', (e)=>{
+          const t = e.target;
+          if (panel.classList.contains('open') && t !== fab && !panel.contains(t)) {
+            closePanel(panel, fab);
+          }
+        });
+        // Close on Escape
+        document.addEventListener('keydown', (e)=>{
+          if (e.key === 'Escape' && panel.classList.contains('open')) closePanel(panel, fab);
+        });
       }
+
       if (themeItem){
         themeItem.addEventListener('click', ()=>{
           const next = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
@@ -123,6 +151,7 @@
       }
 
       function updateOnlineStatus(){
+        if (!offlineBadge) return;
         if (navigator.onLine) { offlineBadge.textContent = 'Online'; offlineBadge.style.opacity = .8; }
         else { offlineBadge.textContent = 'Offline'; offlineBadge.style.opacity = 1; }
       }
@@ -130,56 +159,71 @@
       window.addEventListener('offline', updateOnlineStatus);
       updateOnlineStatus();
 
-      // PWA install
+      // PWA install modes
       let installMode = 'unavailable';
       const isIos = isIOS();
       if (isIos) {
         installMode = 'ios-manual';
-        installItem.style.opacity = 1;
+        if (installItem) installItem.style.opacity = 1;
       }
-
       window.addEventListener('beforeinstallprompt', (e)=>{
         e.preventDefault(); deferredPrompt = e;
         installMode = 'native';
-        installItem.style.opacity = 1;
+        if (installItem) installItem.style.opacity = 1;
       });
 
       if (installItem){
         installItem.style.opacity = .6;
         installItem.addEventListener('click', async ()=>{
           if (isStandalone()) { installItem.querySelector('span').textContent = 'Installed'; return; }
-
           if (installMode === 'native' && deferredPrompt){
             await deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') installItem.querySelector('span').textContent = 'Installed';
             deferredPrompt = null;
           } else if (installMode === 'ios-manual') {
-            // Show inline iOS instructions
             alert('iPhone/iPad: Tap the Share icon in Safari, then choose "Add to Home Screen".');
           } else {
-            // Desktop fallback: guide to browser menu
-            alert('On desktop: Use your browser menu → "Install app". (Chrome/Edge)');
+            alert('On desktop: Use your browser menu → "Install app" (Chrome/Edge).');
           }
         });
       }
-
       if (reloadItem){
         reloadItem.addEventListener('click', ()=> location.reload());
       }
     }
 
-    // Register SW at site root for correct scope
+    // Register SW at root scope
     if ('serviceWorker' in navigator){
       window.addEventListener('load', ()=>{
         navigator.serviceWorker.register('/sw.js').catch(console.error);
       });
     }
 
+    // Ensure elements exist, then wire
+    function ensureMenu(){
+      if (!$('pwa-fab') || !$('pwa-panel')) {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = '<button id="pwa-fab" title="App menu" aria-haspopup="true" aria-expanded="false">☰ Menu</button>' +
+          '<div id="pwa-panel" role="menu" aria-label="App menu">' +
+          '  <h4>Quick actions</h4>' +
+          '  <div class="pwa-item" id="pwa-install"><span>Install app to Home Screen</span><span class="pwa-kbd">PWA</span></div>' +
+          '  <div class="pwa-item" id="pwa-reload"><span>Reload</span><span class="pwa-kbd">Ctrl/⌘ R</span></div>' +
+          '  <h4>Appearance</h4>' +
+          '  <div class="pwa-item" id="pwa-theme"><span>Dark Mode</span><span class="pwa-switch" id="pwa-theme-switch"><i></i></span></div>' +
+          '  <h4>Status</h4>' +
+          '  <div class="pwa-item" id="pwa-status"><span>Offline</span><span class="pwa-badge" id="pwa-offline">Checking…</span></div>' +
+          '</div>';
+        document.body.appendChild(wrapper);
+      }
+    }
+
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', wireMenu);
+      document.addEventListener('DOMContentLoaded', function(){
+        ensureMenu(); wireMenu();
+      });
     } else {
-      wireMenu();
+      ensureMenu(); wireMenu();
     }
   })();
   </script>
