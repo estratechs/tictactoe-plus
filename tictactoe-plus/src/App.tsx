@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./styles/theme.css"; // remove this line if you don't have this file
+import "./styles/theme.css"; 
 
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
