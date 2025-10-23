@@ -129,7 +129,7 @@ export const App = () => {
               <option value={3}>3×3</option><option value={4}>4×4</option><option value={5}>5×5</option>
             </select>
             <button className="button" onClick={reset}>Reset</button>
-            <label style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
+            <label style={{ display:"inline-flex", alignItems:"center", gap:1 }}>
               <input type="checkbox" checked={vsAI} onChange={e => setVsAI(e.target.checked)} aria-label="Play versus AI" /> Vs AI
             </label>
           </div>
