@@ -132,7 +132,6 @@ export const App = () => {
             <label style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
               <input type="checkbox" checked={vsAI} onChange={e => setVsAI(e.target.checked)} aria-label="Play versus AI" /> Vs AI
             </label>
-            <span className="small">Flags: anim tilt confetti sounds via URL · Add <code>?nuke=1</code> once on GitHub Pages to clear old SW caches.</span>
           </div>
         </div>
         <div className="status" aria-live="polite">
@@ -157,7 +156,6 @@ export const App = () => {
         </div>
         <div className="footer">
           <div>Score — X: <strong>{xScore}</strong> · O: <strong>{oScore}</strong></div>
-          <div className="small">Tip: hover the board for a subtle 3D tilt</div>
         </div>
       </div>
     </>
