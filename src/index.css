@@ -47,9 +47,13 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
 /*.board{display:grid;gap:10px;transform-style:preserve-3d;margin:0 auto}*/
 .board{
   display:grid;
-  gap:clamp(4px, 1vw, 10px); /* tighter everywhere, a touch responsive */
+  gap: clamp(3px, 0.6vw, 6px);  /* small gap on all screens */
   transform-style:preserve-3d;
   margin:0 auto;
+  /* Optional: give the gap a faint backdrop so it’s visible even if tiles are white */
+  background: #f7f9fc;
+  padding: clamp(3px, 0.6vw, 6px);  /* keeps outer edge consistent with inner gap */
+  border-radius: 14px;
 }
 
 /*.tile{
@@ -66,13 +70,19 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
   width:100%;
   height:auto;
   aspect-ratio:1 / 1;
-  display:grid;place-items:center;
-  background: var(--tile-bg);
-  border:2px solid var(--tile-border);
-  border-radius:16px;
-  box-shadow: var(--tile-shadow);
-  transition:transform .15s ease, border-color .2s ease, box-shadow .2s ease;
-  font-size:clamp(28px,7vw,60px);font-weight:900;user-select:none;will-change:transform;
+  display:grid; place-items:center;
+
+  /* add a faint edge so each square is defined */
+  background:#fff;
+  border:1px solid rgba(2, 6, 23, 0.08);   /* subtle, not bulky */
+  border-radius: 16px;                      /* keep your rounded look */
+  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.05);
+}
+
+/* Optional: slightly stronger border in dark mode */
+@media (prefers-color-scheme: dark){
+  .board{ background:#0b1220; }
+  .tile{ border-color: rgba(255,255,255,0.10); background:#0f172a; }
 }
 .tile:hover{transform:translateY(-2px); border-color: color-mix(in oklab, var(--accent) 45%, var(--tile-border));}
 
