@@ -48,7 +48,7 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
 
 .board{
   display:grid;
-  gap: clamp(1px, 0.6vw, 6px);
+  gap: clamp(0.6px, 0.6vw, 0.6px);
   transform-style:preserve-3d;
   margin:0 auto
 }
