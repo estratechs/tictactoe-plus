@@ -76,7 +76,8 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
 
 .tile{
   width:clamp(72px,12vw,110px);
-  height:clamp(62px,2vw,100px);
+  height:clamp(72px,12vw,110px);
+  aspect-ratio:1 / 1;
   display:grid;place-items:center;
   background: var(--tile-bg);
   border:2px solid var(--tile-border);
