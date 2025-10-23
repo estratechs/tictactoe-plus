@@ -73,18 +73,34 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
   transition:transform .15s ease, border-color .2s ease, box-shadow .2s ease;
   font-size:clamp(28px,7vw,60px);font-weight:900;user-select:none;will-change:transform;
 }*/
+
+.tile{
+  width:clamp(72px,12vw,110px);
+  height:clamp(62px,2vw,100px);
+  display:grid;place-items:center;
+  background: var(--tile-bg);
+  border:2px solid var(--tile-border);
+  border-radius:16px;
+  box-shadow: var(--tile-shadow);
+  transition:transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+  font-size:clamp(28px,7vw,60px);
+  font-weight:900;
+  user-select:none;
+  will-change:transform;
+}
+
+/*
 .tile{
   width:100%;
   height:auto;
   aspect-ratio:1 / 1;
   display:grid; place-items:center;
-
-  /* add a faint edge so each square is defined */
   background:#fff;
-  border:1px solid rgba(2, 6, 23, 0.08);   /* subtle, not bulky */
-  border-radius: 16px;                      /* keep your rounded look */
+  border:1px solid rgba(2, 6, 23, 0.08);
+  border-radius: 16px;
   box-shadow: 0 4px 10px rgba(2, 6, 23, 0.05);
 }
+*/
 
 /* Optional: slightly stronger border in dark mode */
 @media (prefers-color-scheme: dark){
