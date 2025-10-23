@@ -52,8 +52,20 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
   margin:0 auto;
 }
 
-.tile{
+/*.tile{
   width:clamp(72px,12vw,110px);height:clamp(72px,12vw,110px);
+  display:grid;place-items:center;
+  background: var(--tile-bg);
+  border:2px solid var(--tile-border);
+  border-radius:16px;
+  box-shadow: var(--tile-shadow);
+  transition:transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+  font-size:clamp(28px,7vw,60px);font-weight:900;user-select:none;will-change:transform;
+}*/
+.tile{
+  width:100%;
+  height:auto;
+  aspect-ratio:1 / 1;
   display:grid;place-items:center;
   background: var(--tile-bg);
   border:2px solid var(--tile-border);
