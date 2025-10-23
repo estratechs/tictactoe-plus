@@ -45,16 +45,23 @@ h1{font-size:clamp(20px,2vw,28px);margin:0}
 
 .board-wrap{position:relative;perspective:800px;margin:18px 0 12px}
 /*.board{display:grid;gap:10px;transform-style:preserve-3d;margin:0 auto}*/
+
 .board{
   display:grid;
-  gap: clamp(3px, 0.6vw, 6px);  /* small gap on all screens */
+  gap: clamp(3px, 0.6vw, 6px);
+  transform-style:preserve-3d;
+  margin:0 auto
+}
+
+/*.board{
+  display:grid;
+  gap: clamp(3px, 0.6vw, 6px);
   transform-style:preserve-3d;
   margin:0 auto;
-  /* Optional: give the gap a faint backdrop so it’s visible even if tiles are white */
   background: #f7f9fc;
-  padding: clamp(3px, 0.6vw, 6px);  /* keeps outer edge consistent with inner gap */
+  padding: clamp(3px, 0.6vw, 6px);
   border-radius: 14px;
-}
+} */
 
 /*.tile{
   width:clamp(72px,12vw,110px);height:clamp(72px,12vw,110px);
