@@ -25,7 +25,7 @@ button, [role="button"] { min-height: 44px; min-width: 44px; -webkit-tap-highlig
 
 /* 4) Board grid — same selectors, *tighter gaps on mobile* */
 .board, #board, [data-board], .board-grid {
-  margin: 1px auto 1px !important;
+  margin: 12px auto 20px !important;
   width: min(92vw, 460px) !important;
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
